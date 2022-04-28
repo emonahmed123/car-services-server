@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const jwt = require('jsonWebtoken');
+const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const app = express()
 
@@ -19,16 +19,16 @@ function verifyJWT(req,res,next){
         return res.status(401).send({message : 'unauthorized access'});
      }
  
-     const token =authHeader.split(' ')[1];
-      jwt.verify(token,process.env.ACCESS_TOKEN_SECRET ,  (err,decoded) =>{
+     const token =authHeader.split('  ') [1];
+      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET ,  (err, decoded) =>{
         if(err){
            return res.status(403).send({message: 'Forbidden access'});
        }
-         console.log('decoded',decoded)
-      req.decoded = decoded;
+        // console.log('decoded',decoded)
+         req.decoded = decoded;
       next( );
     })
-    //   console.log('inside verifyJWT',authHeader)
+// console.log('inside verifyJWT',authHeader)
 
  }
 
@@ -37,15 +37,13 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try{
         await client.connect();
-        const serviceCollection =client.db('car').collection('service')
-        const orderCollection =client.db('car').collection('order')
-    
+        const serviceCollection =client.db('car').collection('service');
+        const orderCollection =client.db('car').collection('order');
+                      console.log('all cleare')
     // AUTH
-    app.post('/login', async(req , res)=>{
-        const user = req.body;
-        const accessToken =jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{
-            expiresIn:'1d',
-        });
+    app.post('/login',  async (req , res)=>{
+         const user = req.body
+      const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
            res.send({accessToken});
     })
     
@@ -92,11 +90,11 @@ async function run() {
           app.get('/order',verifyJWT, async(req,res)=>{
             //   const  authHeader =req.headers.authorization;
             //     console.log(authHeader)
-            const decodedEmail =req.decoded.email
+             const decodedEmail =req.decoded.email
               const email =req.query.email
               if(email === decodedEmail){
                 const query ={email:email}
-                const cursor =orderCollection.find(query)
+                const cursor =  orderCollection.find(query)
                 const orders =await cursor.toArray()
                 res.send(orders)
             }
